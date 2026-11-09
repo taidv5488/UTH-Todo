@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "370483903136",
+    "project_id": "tai06-ecfdc",
+    "storage_bucket": "tai06-ecfdc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:370483903136:android:6184aed025e400fa8a67c5",
+        "android_client_info": {
+          "package_name": "com.example.bt4_oop"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCb3Bsw6cpUiOqy2-mx2T7pWBcOU9cbDxU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
