@@ -109,21 +109,51 @@ import android.util.Log
 import com.google.firebase.messaging.FirebaseMessaging
 import android.content.pm.PackageManager
 import android.os.Build
+import android.Manifest
 
 
 class MainActivity : ComponentActivity() {
+
+    // Bộ yêu cầu cấp quyền
+    private val permissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) { permissions ->
+
+            val cameraGranted =
+                permissions[Manifest.permission.CAMERA] == true
+
+            val locationGranted =
+                permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+                        permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+
+            val notificationGranted =
+                Build.VERSION.SDK_INT < 33 ||
+                        permissions[Manifest.permission.POST_NOTIFICATIONS] == true
+
+            Log.d("APP_PERMISSION", "Camera: $cameraGranted")
+            Log.d("APP_PERMISSION", "Location: $locationGranted")
+            Log.d("APP_PERMISSION", "Notification: $notificationGranted")
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
-                != PackageManager.PERMISSION_GRANTED
-            ) {
-                requestPermissions(
-                    arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
-                    100
-                )
-            }
+
+        // Danh sách quyền cần xin
+        val permissions = mutableListOf(
+            Manifest.permission.CAMERA,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        )
+
+        // Android 13 trở lên mới cần xin quyền thông báo
+        if (Build.VERSION.SDK_INT >= 33) {
+            permissions.add(Manifest.permission.POST_NOTIFICATIONS)
         }
+
+        permissionLauncher.launch(permissions.toTypedArray())
+
+        // Lấy FCM Token
         FirebaseMessaging.getInstance().token
             .addOnCompleteListener { task ->
                 if (!task.isSuccessful) {
@@ -134,10 +164,16 @@ class MainActivity : ComponentActivity() {
                 val token = task.result
                 Log.d("FCM_TOKEN", token)
             }
+
+        // Firebase Analytics
         val analytics = FirebaseAnalytics.getInstance(this)
-        val bundle = Bundle().apply { putString("screen_name", "main") }
+        val bundle = Bundle().apply {
+            putString("screen_name", "main")
+        }
         analytics.logEvent("test_event", bundle)
+
         enableEdgeToEdge()
+
         setContent {
             BT4OOPTheme {
                 Scaffold(
@@ -154,7 +190,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
 // ---------------------------------------------------------------
 // MÀU SẮC & GIAO DIỆN (LIGHT / DARK / AUTO)
 // ---------------------------------------------------------------
